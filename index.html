@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090a0f">
+  <meta name="description" content="Unclothy Studio — không gian tạo ảnh AI riêng tư và có kiểm soát.">
+  <title>Unclothy Studio — AI image workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #08090d; --panel: rgba(17, 19, 27, .86); --panel-solid: #11131b;
+      --panel-2: #171a24; --line: rgba(255,255,255,.1); --line-strong: rgba(255,255,255,.17);
+      --text: #f5f7fb; --muted: #9097a8; --soft: #c5cbd7; --pink: #f06ca8;
+      --violet: #8b7bff; --cyan: #57d5e6; --green: #54d69b; --amber: #f6bd64; --red: #ff707d;
+      --shadow: 0 24px 80px rgba(0,0,0,.36); --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; min-width: 320px; color: var(--text); background: var(--bg); font: 15px/1.55 'DM Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    body::before, body::after { content: ''; position: fixed; z-index: -1; pointer-events: none; border-radius: 999px; filter: blur(8px); }
+    body::before { width: 620px; height: 420px; left: -180px; top: -180px; background: radial-gradient(circle, rgba(240,108,168,.18), transparent 68%); }
+    body::after { width: 720px; height: 520px; right: -260px; bottom: -240px; background: radial-gradient(circle, rgba(112,92,255,.16), transparent 68%); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .topbar { height: 78px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .brand { display: inline-flex; gap: 11px; align-items: center; color: var(--text); text-decoration: none; }
+    .brand-mark { width: 37px; height: 37px; display: grid; place-items: center; border-radius: 12px; color: #fff; background: linear-gradient(135deg, var(--pink), var(--violet)); box-shadow: 0 8px 26px rgba(240,108,168,.28); font-size: 19px; }
+    .brand strong { font: 700 18px 'Space Grotesk', sans-serif; letter-spacing: -.04em; }
+    .brand small { display: block; margin-top: -2px; color: var(--muted); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .top-actions { display: flex; align-items: center; gap: 12px; }
+    .pill { display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--soft); background: rgba(255,255,255,.035); font-size: 12px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); }
+    .hero { padding: 72px 0 38px; max-width: 750px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--pink); font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+    .eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--pink); }
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.045em; }
+    h1 { margin: 15px 0 17px; font-size: clamp(38px, 6vw, 70px); line-height: .98; }
+    h1 span { background: linear-gradient(110deg, #fff 25%, #eaa0f3 62%, #8e83ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero p { max-width: 620px; margin: 0; color: var(--muted); font-size: 17px; }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(300px, .7fr); gap: 20px; align-items: start; padding-bottom: 68px; }
+    .card { border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(145deg, rgba(25,27,38,.88), rgba(13,15,22,.9)); box-shadow: var(--shadow); backdrop-filter: blur(18px); }
+    .main-card { overflow: hidden; }
+    .card-head { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; padding: 28px 30px 22px; border-bottom: 1px solid rgba(255,255,255,.075); }
+    .card-head h2 { margin: 0 0 4px; font-size: 21px; }
+    .card-head p { margin: 0; color: var(--muted); font-size: 13px; }
+    .step { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+    .form { padding: 27px 30px 30px; }
+    .section-title { display: flex; align-items: center; gap: 11px; margin: 0 0 13px; color: var(--soft); font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .section-title b { display: grid; place-items: center; width: 23px; height: 23px; border-radius: 8px; color: #fff; background: linear-gradient(135deg, #3a3e53, #202330); font-size: 11px; }
+    .field { margin-bottom: 21px; }
+    label { display: block; margin-bottom: 8px; color: var(--soft); font-size: 12px; font-weight: 600; }
+    .help { margin: 6px 0 0; color: var(--muted); font-size: 11px; }
+    input[type=text], input[type=password], select { width: 100%; height: 48px; padding: 0 14px; color: var(--text); background: #0c0e14; border: 1px solid var(--line); border-radius: 12px; outline: none; transition: .2s ease; }
+    input:focus, select:focus { border-color: var(--violet); box-shadow: 0 0 0 4px rgba(139,123,255,.14); }
+    select { appearance: none; padding-right: 38px; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 17px) 20px, calc(100% - 12px) 20px; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+    .key-wrap { position: relative; }
+    .key-wrap input { padding-right: 82px; }
+    .toggle-key { position: absolute; right: 8px; top: 7px; height: 34px; padding: 0 10px; border: 0; border-radius: 8px; color: var(--muted); background: transparent; font-size: 11px; }
+    .toggle-key:hover { color: var(--text); background: rgba(255,255,255,.07); }
+    .credits { display: none; align-items: center; gap: 8px; width: fit-content; margin-top: 10px; padding: 7px 11px; border: 1px solid rgba(84,214,155,.22); border-radius: 999px; color: var(--green); background: rgba(84,214,155,.08); font-size: 12px; font-weight: 700; }
+    .credits.show { display: inline-flex; } .credits.low { color: var(--amber); border-color: rgba(246,189,100,.25); background: rgba(246,189,100,.08); } .credits.empty { color: var(--red); border-color: rgba(255,112,125,.25); background: rgba(255,112,125,.08); }
+    .upload { position: relative; min-height: 258px; display: grid; place-items: center; padding: 24px; overflow: hidden; border: 1.5px dashed #3a3e4c; border-radius: 16px; color: var(--muted); background: radial-gradient(circle at 50% 40%, rgba(139,123,255,.08), transparent 45%), #0d0f16; text-align: center; transition: .25s ease; }
+    .upload:hover, .upload.dragover { border-color: var(--pink); background-color: rgba(240,108,168,.05); transform: translateY(-1px); }
+    .upload.has-image { padding: 10px; border-style: solid; border-color: var(--line); }
+    .upload-icon { width: 52px; height: 52px; display: grid; place-items: center; margin: 0 auto 13px; border-radius: 16px; color: #d8d2ff; background: linear-gradient(135deg, rgba(139,123,255,.25), rgba(240,108,168,.15)); font-size: 24px; }
+    .upload strong { display: block; color: var(--text); font-size: 14px; }
+    .upload span { display: block; margin-top: 5px; font-size: 12px; }
+    #preview { display: none; max-width: 100%; max-height: 310px; border-radius: 11px; object-fit: contain; }
+    #fileInput { display: none; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+    .grid .field { margin-bottom: 0; }
+    .consent { display: flex; align-items: flex-start; gap: 10px; margin: 23px 0 20px; color: var(--muted); font-size: 12px; }
+    .consent input { width: 17px; height: 17px; margin: 1px 0 0; accent-color: var(--pink); flex: 0 0 auto; }
+    .consent a { color: var(--soft); }
+    .btn { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; border: 0; border-radius: 12px; color: var(--text); font-weight: 700; transition: .2s ease; }
+    .btn-primary { width: 100%; background: linear-gradient(105deg, #e65f9e, #8b6fff); box-shadow: 0 12px 28px rgba(180,93,206,.22); }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 17px 35px rgba(180,93,206,.34); }
+    .btn:disabled { opacity: .43; cursor: not-allowed; box-shadow: none; }
+    .btn-ghost { padding: 0 14px; border: 1px solid var(--line); background: rgba(255,255,255,.04); }
+    .btn-ghost:hover { background: rgba(255,255,255,.09); }
+    .status { display: none; align-items: center; gap: 10px; margin-top: 16px; padding: 13px 14px; border-radius: 11px; font-size: 13px; }
+    .status.show { display: flex; } .status.info { color: #a9b4ff; background: rgba(102,115,255,.12); } .status.success { color: var(--green); background: rgba(84,214,155,.1); } .status.error { color: var(--red); background: rgba(255,112,125,.1); }
+    .spinner { width: 16px; height: 16px; flex: 0 0 auto; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .progress { display: none; height: 4px; margin-top: 13px; overflow: hidden; border-radius: 999px; background: #282c38; } .progress.show { display: block; }
+    .progress i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--pink), var(--violet)); transition: width .35s ease; }
+    .result { display: none; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--line); animation: rise .45s ease; } .result.show { display: block; }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .result-head { display: flex; justify-content: space-between; margin-bottom: 11px; } .result-head h3 { margin: 0; font-size: 17px; } .result-head span { color: var(--green); font-size: 12px; }
+    .result-frame { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: #0a0b10; } .result-frame img { display: block; width: 100%; max-height: 540px; object-fit: contain; }
+    .result-actions { display: flex; gap: 10px; margin-top: 12px; } .result-actions .btn { flex: 1; }
+    .side { display: grid; gap: 20px; }
+    .side-card { padding: 25px; } .side-card h3 { margin: 0 0 7px; font-size: 18px; } .side-card > p { margin: 0 0 21px; color: var(--muted); font-size: 13px; }
+    .feature { display: flex; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); } .feature:first-of-type { border-top: 0; padding-top: 0; } .feature-icon { width: 32px; height: 32px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 10px; color: #decfff; background: rgba(139,123,255,.14); } .feature b { display: block; font-size: 13px; } .feature span { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .api-note { padding: 16px; border: 1px solid rgba(87,213,230,.16); border-radius: 14px; background: rgba(87,213,230,.06); } .api-note strong { display: block; margin-bottom: 5px; color: var(--cyan); font-size: 12px; } .api-note p { margin: 0; color: var(--muted); font-size: 12px; }
+    footer { display: flex; justify-content: space-between; gap: 18px; padding: 23px 0 35px; border-top: 1px solid rgba(255,255,255,.07); color: var(--muted); font-size: 11px; } footer a { color: var(--soft); text-decoration: none; } footer a:hover { color: var(--pink); }
+    .toast { position: fixed; z-index: 10; left: 50%; bottom: 25px; max-width: calc(100% - 30px); padding: 12px 16px; border: 1px solid var(--line-strong); border-radius: 12px; color: var(--text); background: #1d202b; box-shadow: var(--shadow); opacity: 0; pointer-events: none; transform: translate(-50%, 18px); transition: .25s ease; font-size: 13px; } .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .modal { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 20px; background: rgba(5,6,10,.8); backdrop-filter: blur(10px); } .modal.hidden { display: none; } .modal-box { width: min(440px, 100%); padding: 28px; border: 1px solid var(--line-strong); border-radius: 22px; background: var(--panel-solid); box-shadow: var(--shadow); } .modal-box h2 { margin: 0 0 9px; font-size: 24px; } .modal-box p { margin: 0 0 20px; color: var(--muted); font-size: 13px; } .modal-actions { display: grid; gap: 9px; }
+    @media (max-width: 820px) { .workspace { grid-template-columns: 1fr; } .side { grid-template-columns: repeat(2, minmax(0,1fr)); } .api-note { grid-column: 1 / -1; } }
+    @media (max-width: 560px) { .shell { width: min(100% - 28px, 1180px); } .topbar { height: 68px; } .top-actions .pill { display: none; } .hero { padding: 52px 0 28px; } .hero p { font-size: 15px; } .card-head, .form { padding-left: 19px; padding-right: 19px; } .card-head { display: block; } .step { display: block; margin-top: 11px; } .grid, .side { grid-template-columns: 1fr; } .side .api-note { grid-column: auto; } .upload { min-height: 220px; } footer { display: block; } footer span { display: block; margin-bottom: 8px; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Unclothy Studio">
+        <span class="brand-mark">✦</span><span><strong>unclothy</strong><small>studio</small></span>
+      </a>
+      <div class="top-actions"><span class="pill"><i class="dot"></i> API online</span><a class="btn btn-ghost" href="https://unclothy.com/en/docs" target="_blank" rel="noopener">API docs ↗</a></div>
+    </header>
+    <main id="top">
+      <section class="hero"><span class="eyebrow">Private image workspace</span><h1>Tạo tác phẩm của bạn<br><span>theo cách riêng.</span></h1><p>Một không gian tinh gọn để gửi ảnh, chọn thiết lập và theo dõi kết quả từ Unclothy API — rõ ràng, riêng tư và dễ kiểm soát.</p></section>
+      <section class="workspace">
+        <article class="card main-card">
+          <div class="card-head"><div><h2>Bắt đầu một phiên tạo ảnh</h2><p>Chuẩn bị ảnh của bạn để bắt đầu.</p></div><span class="step">01 / 03 · Setup</span></div>
+          <div class="form">
+            <div class="section-title"><b>01</b> Kết nối API</div>
+            <div class="field"><label for="apiKey">API key</label><div class="key-wrap"><input id="apiKey" type="password" autocomplete="off" placeholder="Dán API key của bạn vào đây"><button class="toggle-key" id="toggleKey" type="button">Hiện</button></div><p class="help">Key chỉ được dùng trong trình duyệt hiện tại và không được lưu tự động.</p><div class="credits" id="creditsBadge"><span>●</span><span id="creditsText">—</span></div></div>
+            <div class="section-title"><b>02</b> Ảnh nguồn</div>
+            <div class="field"><div class="upload" id="uploadZone" tabindex="0" role="button" aria-label="Chọn ảnh nguồn"><div id="uploadPlaceholder"><div class="upload-icon">↥</div><strong>Kéo thả hoặc chọn một ảnh</strong><span>JPG, PNG hoặc WEBP · tối đa 10 MB</span></div><img id="preview" alt="Xem trước ảnh nguồn"></div><input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp"></div>
+            <div class="section-title"><b>03</b> Thiết lập kết quả</div>
+            <div class="grid">
+              <div class="field"><label for="generationMode">Chế độ</label><select id="generationMode"><option value="naked">Naked</option><option value="swimsuit">Swimsuit</option><option value="underwear">Underwear</option><option value="latex">Latex</option><option value="bondage">Bondage</option></select></div>
+              <div class="field"><label for="gender">Giới tính</label><select id="gender"><option value="female">Female</option><option value="male">Male</option></select></div>
+              <div class="field"><label for="age">Độ tuổi</label><select id="age"><option value="automatic">Tự động</option><option value="25">25+</option><option value="35">35+</option><option value="45">45+</option><option value="60">60+</option></select></div>
+              <div class="field"><label for="bodyType">Dáng người</label><select id="bodyType"><option value="automatic">Tự động</option><option value="skinny">Skinny</option><option value="fit">Fit</option><option value="curvy">Curvy</option><option value="muscular">Muscular</option></select></div>
+              <div class="field"><label for="breastsSize">Kích thước ngực</label><select id="breastsSize"><option value="automatic">Tự động</option><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option></select></div>
+              <div class="field"><label for="assSize">Kích thước mông</label><select id="assSize"><option value="automatic">Tự động</option><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option></select></div>
+            </div>
+            <label class="consent"><input id="consent" type="checkbox"><span>Tôi xác nhận mình đủ 18 tuổi, có quyền sử dụng ảnh này và chỉ dùng công cụ với sự đồng ý rõ ràng của người xuất hiện trong ảnh.</span></label>
+            <button class="btn btn-primary" id="createBtn" type="button" disabled><span>✦</span> Tạo ảnh</button>
+            <div class="status" id="status" role="status" aria-live="polite"><span class="spinner" id="spinner"></span><span id="statusText"></span></div><div class="progress" id="progressWrap"><i id="progressFill"></i></div>
+            <div class="result" id="result"><div class="result-head"><h3>Kết quả đã sẵn sàng</h3><span>● Completed</span></div><div class="result-frame"><img id="resultImg" alt="Kết quả tạo ảnh"></div><div class="result-actions"><button class="btn btn-ghost" id="downloadBtn" type="button">↓ Tải xuống</button><button class="btn btn-ghost" id="newBtn" type="button">↻ Tạo phiên mới</button></div></div>
+          </div>
+        </article>
+        <aside class="side">
+          <div class="card side-card"><h3>Quy trình tối giản</h3><p>Mọi thứ bạn cần, trong một workspace tập trung.</p><div class="feature"><span class="feature-icon">◈</span><div><b>Kiểm soát rõ ràng</b><span>Thiết lập từng thông số theo nhu cầu.</span></div></div><div class="feature"><span class="feature-icon">⌁</span><div><b>Theo dõi trực tiếp</b><span>Trạng thái task và tiến độ luôn hiển thị.</span></div></div><div class="feature"><span class="feature-icon">◌</span><div><b>Riêng tư mặc định</b><span>Không lưu API key vào local storage.</span></div></div></div>
+          <div class="api-note"><strong>Đầu cuối đang sử dụng</strong><p><code>https://unclothy.com/api</code><br>API v2 · xử lý bất đồng bộ</p></div>
+        </aside>
+      </section>
+    </main>
+    <footer><span>© 2026 Unclothy Studio · Dành cho người trưởng thành</span><span><a href="https://unclothy.com/en/docs" target="_blank" rel="noopener">Tài liệu API</a> · <a href="https://unclothy.com" target="_blank" rel="noopener">unclothy.com</a></span></footer>
+  </div>
+  <div class="toast" id="toast" role="alert"></div>
+  <div class="modal" id="ageModal" aria-modal="true" role="dialog"><div class="modal-box"><h2>Xác nhận trước khi tiếp tục</h2><p>Không gian này chỉ dành cho người từ 18 tuổi trở lên. Chỉ tải lên ảnh mà bạn có quyền sử dụng và được sự đồng ý rõ ràng của người trong ảnh.</p><div class="modal-actions"><button class="btn btn-primary" id="enterBtn" type="button">Tôi đủ 18 tuổi — Tiếp tục</button><button class="btn btn-ghost" id="leaveBtn" type="button">Thoát</button></div></div></div>
+  <script>
+    'use strict';
+    const API_BASE = 'https://unclothy.com/api';
+    let base64Data = null, isProcessing = false, selectedFileName = '';
+    const $ = id => document.getElementById(id);
+    const apiKey = $('apiKey'), uploadZone = $('uploadZone'), fileInput = $('fileInput'), preview = $('preview'), placeholder = $('uploadPlaceholder'), createBtn = $('createBtn'), consent = $('consent');
+    const statusEl = $('status'), statusText = $('statusText'), spinner = $('spinner'), progressWrap = $('progressWrap'), progressFill = $('progressFill'), resultEl = $('result'), resultImg = $('resultImg'), creditsBadge = $('creditsBadge'), creditsText = $('creditsText');
+    const showToast = message => { const toast = $('toast'); toast.textContent = message; toast.classList.add('show'); window.clearTimeout(showToast.timer); showToast.timer = window.setTimeout(() => toast.classList.remove('show'), 3000); };
+    const showStatus = (message, type = 'info', loading = false) => { statusEl.className = 'status show ' + type; statusText.textContent = message; spinner.style.display = loading ? 'block' : 'none'; };
+    const hideStatus = () => { statusEl.classList.remove('show'); progressWrap.classList.remove('show'); };
+    const setProgress = value => { progressWrap.classList.add('show'); progressFill.style.width = Math.max(0, Math.min(100, value)) + '%'; };
+    const jsonOrThrow = async response => { let data; try { data = await response.json(); } catch { throw new Error('Phản hồi từ API không hợp lệ.'); } if (!response.ok || data.success === false) throw new Error(data.message || `API trả về lỗi ${response.status}.`); return data; };
+    function updateButton() { createBtn.disabled = isProcessing || !base64Data || !apiKey.value.trim() || !consent.checked; }
+    function handleFile(file) { if (!file || !/^image\/(jpeg|png|webp)$/.test(file.type)) return showToast('Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.'); if (file.size > 10 * 1024 * 1024) return showToast('Ảnh vượt quá giới hạn 10 MB.'); const reader = new FileReader(); reader.onload = event => { base64Data = event.target.result; selectedFileName = file.name; preview.src = base64Data; preview.style.display = 'block'; placeholder.style.display = 'none'; uploadZone.classList.add('has-image'); resultEl.classList.remove('show'); hideStatus(); updateButton(); }; reader.onerror = () => showToast('Không thể đọc file ảnh.'); reader.readAsDataURL(file); }
+    uploadZone.addEventListener('click', () => { if (!isProcessing) fileInput.click(); });
+    uploadZone.addEventListener('keydown', event => { if ((event.key === 'Enter' || event.key === ' ') && !isProcessing) { event.preventDefault(); fileInput.click(); } });
+    ['dragenter','dragover'].forEach(type => uploadZone.addEventListener(type, event => { event.preventDefault(); uploadZone.classList.add('dragover'); }));
+    ['dragleave','drop'].forEach(type => uploadZone.addEventListener(type, event => { event.preventDefault(); uploadZone.classList.remove('dragover'); }));
+    uploadZone.addEventListener('drop', event => handleFile(event.dataTransfer.files[0])); fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
+    $('toggleKey').addEventListener('click', () => { const visible = apiKey.type === 'text'; apiKey.type = visible ? 'password' : 'text'; $('toggleKey').textContent = visible ? 'Hiện' : 'Ẩn'; });
+    apiKey.addEventListener('input', updateButton); consent.addEventListener('change', updateButton);
+    async function refreshCredits() { const key = apiKey.value.trim(); if (!key) return; try { const data = await jsonOrThrow(await fetch(API_BASE + '/v2/user/credits', { headers: { 'x-api-key': key, Accept: 'application/json' } })); const credits = Number(data.result?.credits ?? 0); creditsText.textContent = `${credits} credits còn lại`; creditsBadge.className = 'credits show' + (credits <= 0 ? ' empty' : credits <= 3 ? ' low' : ''); } catch { creditsBadge.classList.remove('show'); } }
+    apiKey.addEventListener('change', refreshCredits);
+    function buildSettings() { const gender = $('gender').value; const settings = { generationMode: $('generationMode').value, gender, age: $('age').value }; [['bodyType','bodyType'],['breastsSize','breastsSize'],['assSize','assSize']].forEach(([id, key]) => { const value = $(id).value; if (value !== 'automatic') settings[key] = value; }); return settings; }
+    async function waitForTask(taskId, key) { const maxAttempts = 90; for (let attempt = 1; attempt <= maxAttempts; attempt++) { await new Promise(resolve => window.setTimeout(resolve, attempt === 1 ? 1200 : 2000)); setProgress(Math.min(25 + Math.floor(attempt / maxAttempts * 70), 95)); const data = await jsonOrThrow(await fetch(`${API_BASE}/v2/task/${encodeURIComponent(taskId)}`, { headers: { 'x-api-key': key, Accept: 'application/json' } })); const result = data.result || {}; const state = String(result.status || '').toLowerCase(); const image = result.image || result.result_url || result.output || result.url || result.result; if (image && (state === '' || ['completed','success','done','finished'].includes(state) || typeof image === 'string')) return image; if (['failed','error','cancelled'].includes(state)) throw new Error(result.message || result.error || 'Task xử lý thất bại.'); showStatus(`Đang xử lý… ${attempt}/${maxAttempts}`, 'info', true); } throw new Error('Hết thời gian chờ. Vui lòng thử lại.'); }
+    createBtn.addEventListener('click', async () => { if (isProcessing) return; const key = apiKey.value.trim(); if (!key) return showToast('Vui lòng nhập API key.'); if (!base64Data) return showToast('Vui lòng chọn ảnh nguồn.'); if (!consent.checked) return showToast('Vui lòng xác nhận quyền sử dụng ảnh.'); isProcessing = true; updateButton(); resultEl.classList.remove('show'); showStatus('Đang gửi ảnh lên server…', 'info', true); setProgress(8); try { const createData = await jsonOrThrow(await fetch(API_BASE + '/v2/task/create', { method: 'POST', headers: { 'x-api-key': key, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ base64: base64Data, settings: buildSettings() }) })); const taskId = createData.result?.task_id || createData.result?.taskId; if (!taskId) throw new Error('API không trả về task ID.'); showStatus('Đã nhận ảnh. Đang xử lý…', 'info', true); setProgress(25); let image = await waitForTask(taskId, key); if (typeof image === 'string' && !/^https?:\/\//i.test(image) && !image.startsWith('data:')) image = 'data:image/jpeg;base64,' + image; resultImg.src = image; resultEl.classList.add('show'); setProgress(100); showStatus('Hoàn thành — kết quả đã sẵn sàng.', 'success', false); refreshCredits(); } catch (error) { console.error(error); showStatus(error.message || 'Đã xảy ra lỗi không xác định.', 'error', false); progressWrap.classList.remove('show'); } finally { isProcessing = false; updateButton(); } });
+    $('downloadBtn').addEventListener('click', () => { if (!resultImg.src) return; const link = document.createElement('a'); link.href = resultImg.src; link.download = `unclothy-${Date.now()}.jpg`; link.click(); showToast('Đã bắt đầu tải xuống.'); });
+    $('newBtn').addEventListener('click', () => { resultEl.classList.remove('show'); hideStatus(); progressFill.style.width = '0'; window.scrollTo({ top: document.querySelector('.main-card').offsetTop - 20, behavior: 'smooth' }); });
+    $('enterBtn').addEventListener('click', () => { $('ageModal').classList.add('hidden'); apiKey.focus(); }); $('leaveBtn').addEventListener('click', () => { document.body.innerHTML = '<main style="min-height:100vh;display:grid;place-items:center;color:#c5cbd7;font:16px system-ui;background:#08090d">Bạn đã rời khỏi Unclothy Studio.</main>'; });
+    updateButton();
+  </script>
+</body>
+</html>
