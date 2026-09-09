@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Unclothy AI – Tạo ảnh khỏa thân chuyên nghiệp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090b;
+      --card: #18181b;
+      --border: #27272a;
+      --primary: #ec4899;
+      --primary-hover: #db2777;
+      --primary-glow: rgba(236, 72, 153, 0.25);
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --success: #22c55e;
+      --error: #ef4444;
+      --warning: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(236, 72, 153, 0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(168, 85, 247, 0.08), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+    header { text-align: center; margin-bottom: 36px; }
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, #ec4899, #a855f7);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
+    .tagline { color: var(--text-muted); font-size: 0.95rem; margin-top: 6px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .field { margin-bottom: 20px; }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 14px 16px;
+      background: #0f0f11;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .credits-badge {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--success);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 999px;
+      margin-top: 10px;
+    }
+    .credits-badge.show { display: inline-flex; }
+    .credits-badge.low { background: rgba(245, 158, 11, 0.12); color: var(--warning); }
+    .credits-badge.empty { background: rgba(239, 68, 68, 0.12); color: var(--error); }
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      background: #0f0f11;
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: var(--primary);
+      background: rgba(236, 72, 153, 0.04);
+    }
+    .upload-zone.has-image { padding: 12px; border-style: solid; }
+    .upload-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.7; }
+    .upload-text { font-weight: 500; margin-bottom: 4px; }
+    .upload-hint { font-size: 0.85rem; color: var(--text-muted); }
+    #preview {
+      max-width: 100%; max-height: 280px;
+      border-radius: 12px; display: none; object-fit: contain;
+    }
+    #fileInput { display: none; }
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 20px 0;
+    }
+    @media (max-width: 480px) { .settings-grid { grid-template-columns: 1fr; } }
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #ec4899, #db2777);
+      color: white;
+      box-shadow: 0 4px 20px var(--primary-glow);
+    }
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px var(--primary-glow);
+    }
+    .btn-primary:disabled {
+      opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none;
+    }
+    .btn-secondary {
+      background: #27272a; color: var(--text); margin-top: 0;
+    }
+    .btn-secondary:hover { background: #3f3f46; }
+    .status {
+      display: none;
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      align-items: center;
+      gap: 10px;
+    }
+    .status.show { display: flex; }
+    .status.info { background: rgba(59, 130, 246, 0.12); color: #60a5fa; }
+    .status.success { background: rgba(34, 197, 94, 0.12); color: var(--success); }
+    .status.error { background: rgba(239, 68, 68, 0.12); color: var(--error); }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .progress-wrap { display: none; margin-top: 12px; }
+    .progress-wrap.show { display: block; }
+    .progress-bar {
+      height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ec4899, #a855f7);
+      width: 0%; transition: width 0.4s ease; border-radius: 2px;
+    }
+    .result { display: none; margin-top: 20px; animation: fadeIn 0.4s ease; }
+    .result.show { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .result-img-wrap {
+      border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--border); background: #0f0f11;
+    }
+    .result-img-wrap img { width: 100%; display: block; }
+    .result-actions { display: flex; gap: 10px; margin-top: 14px; }
+    .result-actions .btn { flex: 1; margin: 0; }
+    footer {
+      text-align: center; margin-top: 32px;
+      color: var(--text-muted); font-size: 0.8rem;
+    }
+    .toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #27272a; color: white;
+      padding: 12px 20px; border-radius: 12px;
+      font-size: 0.9rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      opacity: 0; transition: all 0.3s; z-index: 100;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1; transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="logo-icon">✦</div>
+        <h1>Unclothy AI</h1>
+      </div>
+      <p class="tagline">Tạo ảnh khỏa thân chất lượng cao từ ảnh gốc</p>
+    </header>
+
+    <div class="card">
+      <div class="field">
+        <label>API Key</label>
+        <input type="text" id="apiKey" value="8feea150-ba6c-45b9-b27a-5972befd5e41" placeholder="Nhập API Key của bạn">
+        <div class="credits-badge" id="creditsBadge">
+          <span id="creditsText">—</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Ảnh gốc</label>
+        <div class="upload-zone" id="uploadZone">
+          <div id="uploadPlaceholder">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Kéo thả hoặc nhấn để chọn ảnh</div>
+            <div class="upload-hint">JPG, PNG, WEBP • Tối đa 10MB</div>
+          </div>
+          <img id="preview" alt="Xem trước">
+        </div>
+        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp">
+      </div>
+
+      <div class="settings-grid">
+        <div class="field" style="margin:0">
+          <label>Chế độ</label>
+          <select id="generationMode">
+            <option value="naked">Khỏa thân hoàn toàn</option>
+            <option value="swimsuit">Đồ bơi</option>
+            <option value="underwear">Nội y</option>
+            <option value="latex">Latex</option>
+            <option value="bondage">Bondage</option>
+          </select>
+        </div>
+        <div class="field" style="margin:0">
+          <label>Giới tính</label>
+          <select id="gender">
+            <option value="female">Nữ</option>
+            <option value="male">Nam</option>
+          </select>
+        </div>
+        <div class="field" style="margin:0">
+          <label>Dáng người</label>
+          <select id="bodyType">
+            <option value="automatic">Tự động</option>
+            <option value="skinny">Gầy</option>
+            <option value="fit">Vạm vỡ / Fit</option>
+            <option value="curvy">Đầy đặn</option>
+            <option value="muscular">Cơ bắp</option>
+          </select>
+        </div>
+        <div class="field" style="margin:0">
+          <label>Kích thước ngực</label>
+          <select id="breastsSize">
+            <option value="automatic">Tự động</option>
+            <option value="small">Nhỏ</option>
+            <option value="medium">Trung bình</option>
+            <option value="large">Lớn</option>
+          </select>
+        </div>
+        <div class="field" style="margin:0">
+          <label>Kích thước mông</label>
+          <select id="assSize">
+            <option value="automatic">Tự động</option>
+            <option value="small">Nhỏ</option>
+            <option value="medium">Trung bình</option>
+            <option value="large">Lớn</option>
+          </select>
+        </div>
+        <div class="field" style="margin:0">
+          <label>Chi tiết vùng kín</label>
+          <select id="private">
+            <option value="shaved">Cạo sạch</option>
+            <option value="normal">Bình thường</option>
+            <option value="hairy">Nhiều lông</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="createBtn" disabled>
+        <span>✨ Tạo ảnh ngay</span>
+      </button>
+
+      <div class="status" id="status">
+        <div class="spinner" id="spinner" style="display:none"></div>
+        <span id="statusText"></span>
+      </div>
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <div class="result" id="result">
+        <div class="result-img-wrap">
+          <img id="resultImg" alt="Kết quả">
+        </div>
+        <div class="result-actions">
+          <button class="btn btn-secondary" id="downloadBtn">⬇️ Tải ảnh về</button>
+          <button class="btn btn-secondary" id="newBtn">🔄 Tạo ảnh mới</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Powered by Unclothy API · Chỉ dành cho người trưởng thành
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API_BASE = 'https://unclothy.com/api';
+    let base64Data = null;
+    let isProcessing = false;
+
+    const $ = id => document.getElementById(id);
+    const uploadZone = $('uploadZone');
+    const fileInput = $('fileInput');
+    const preview = $('preview');
+    const uploadPlaceholder = $('uploadPlaceholder');
+    const createBtn = $('createBtn');
+    const statusEl = $('status');
+    const statusText = $('statusText');
+    const spinner = $('spinner');
+    const progressWrap = $('progressWrap');
+    const progressFill = $('progressFill');
+    const resultEl = $('result');
+    const resultImg = $('resultImg');
+    const creditsBadge = $('creditsBadge');
+    const creditsText = $('creditsText');
+
+    uploadZone.addEventListener('click', () => !isProcessing && fileInput.click());
+    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+    uploadZone.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
+
+    function handleFile(file) {
+      if (!file.type.match(/^image\/(jpeg|png|webp)$/)) {
+        showToast('Chỉ hỗ trợ JPG, PNG, WEBP');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        showToast('Ảnh quá lớn (tối đa 10MB)');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = e => {
+        base64Data = e.target.result;
+        preview.src = base64Data;
+        preview.style.display = 'block';
+        uploadPlaceholder.style.display = 'none';
+        uploadZone.classList.add('has-image');
+        createBtn.disabled = false;
+        resultEl.classList.remove('show');
+        hideStatus();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function refreshCredits() {
+      const key = $('apiKey').value.trim();
+      if (!key) return;
+      try {
+        const res = await fetch(API_BASE + '/v2/user/credits', {
+          headers: { 'x-api-key': key, 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.success) {
+          const c = data.result.credits;
+          creditsText.textContent = 'Còn ' + c + ' credits';
+          creditsBadge.classList.add('show');
+          creditsBadge.className = 'credits-badge show' + (c <= 0 ? ' empty' : c <= 3 ? ' low' : '');
+        }
+      } catch (e) {}
+    }
+    refreshCredits();
+    $('apiKey').addEventListener('change', refreshCredits);
+
+    function showStatus(msg, type, showSpinner) {
+      statusEl.className = 'status show ' + type;
+      statusText.textContent = msg;
+      spinner.style.display = showSpinner ? 'block' : 'none';
+    }
+    function hideStatus() {
+      statusEl.classList.remove('show');
+      progressWrap.classList.remove('show');
+    }
+    function setProgress(pct) {
+      progressWrap.classList.add('show');
+      progressFill.style.width = pct + '%';
+    }
+    function showToast(msg) {
+      const t = $('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    createBtn.addEventListener('click', async () => {
+      if (isProcessing) return;
+      const key = $('apiKey').value.trim();
+      if (!key) { showToast('Vui lòng nhập API Key'); return; }
+      if (!base64Data) { showToast('Vui lòng chọn ảnh'); return; }
+
+      isProcessing = true;
+      createBtn.disabled = true;
+      resultEl.classList.remove('show');
+      showStatus('Đang gửi ảnh lên server...', 'info', true);
+      setProgress(10);
+
+      const gender = $('gender').value;
+      const settings = {
+        'generation-mode': $('generationMode').value,
+        gender: gender,
+        age: 'automatic'
+      };
+      const bt = $('bodyType').value;
+      if (bt !== 'automatic') settings['body-type'] = bt;
+      const bs = $('breastsSize').value;
+      if (bs !== 'automatic') settings['breasts-size'] = bs;
+      const as = $('assSize').value;
+      if (as !== 'automatic') settings['ass-size'] = as;
+      if (gender === 'female') settings.pussy = $('private').value;
+      else settings.penis = $('private').value;
+
+      try {
+        const createRes = await fetch(API_BASE + '/v2/task/create', {
+          method: 'POST',
+          headers: {
+            'x-api-key': key,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ base64: base64Data, settings: settings })
+        });
+        const createData = await createRes.json();
+        if (!createData.success) throw new Error(createData.message || 'Lỗi tạo task (' + createRes.status + ')');
+
+        const taskId = createData.result.task_id || createData.result.taskId;
+        if (!taskId) throw new Error('Không nhận được task_id');
+
+        showStatus('Đã tạo task. Đang xử lý ảnh...', 'info', true);
+        setProgress(25);
+
+        let attempts = 0;
+        const maxAttempts = 90;
+
+        const poll = async () => {
+          attempts++;
+          setProgress(Math.min(25 + Math.floor((attempts / maxAttempts) * 70), 95));
+
+          const statusRes = await fetch(API_BASE + '/v2/task/' + taskId, {
+            headers: { 'x-api-key': key, 'Accept': 'application/json' }
+          });
+          const statusData = await statusRes.json();
+          if (!statusData.success) throw new Error(statusData.message || 'Lỗi lấy trạng thái');
+
+          const r = statusData.result || {};
+          const status = (r.status || '').toLowerCase();
+
+          if (status === 'completed' || status === 'success' || r.image || r.result_url || r.output || r.url) {
+            let imgSrc = r.image || r.result_url || r.output || r.url || r.result;
+            if (!imgSrc) throw new Error('Không tìm thấy ảnh kết quả trong response');
+            if (typeof imgSrc === 'string' && !imgSrc.startsWith('http') && !imgSrc.startsWith('data:')) {
+              imgSrc = 'data:image/jpeg;base64,' + imgSrc;
+            }
+            resultImg.src = imgSrc;
+            resultEl.classList.add('show');
+            setProgress(100);
+            showStatus('Hoàn thành! Ảnh đã sẵn sàng', 'success', false);
+            refreshCredits();
+            isProcessing = false;
+            createBtn.disabled = false;
+            return;
+          }
+
+          if (status === 'failed' || status === 'error') {
+            throw new Error(r.message || r.error || 'Task thất bại. Ảnh có thể không hợp lệ hoặc hết credits.');
+          }
+
+          showStatus('Đang xử lý... (' + attempts + '/' + maxAttempts + ') • ' + (status || 'processing'), 'info', true);
+          if (attempts >= maxAttempts) throw new Error('Hết thời gian chờ. Vui lòng thử lại.');
+          setTimeout(poll, 2000);
+        };
+
+        setTimeout(poll, 1500);
+      } catch (err) {
+        console.error(err);
+        showStatus(err.message || 'Đã xảy ra lỗi', 'error', false);
+        progressWrap.classList.remove('show');
+        isProcessing = false;
+        createBtn.disabled = false;
+      }
+    });
+
+    $('downloadBtn').addEventListener('click', () => {
+      const a = document.createElement('a');
+      a.href = resultImg.src;
+      a.download = 'unclothy-' + Date.now() + '.jpg';
+      a.click();
+      showToast('Đã bắt đầu tải ảnh');
+    });
+
+    $('newBtn').addEventListener('click', () => {
+      resultEl.classList.remove('show');
+      hideStatus();
+      progressFill.style.width = '0%';
+    });
+  </script>
+</body>
+</html>
